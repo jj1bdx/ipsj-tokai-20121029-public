@@ -1,3 +1,11 @@
+# Notes
+
+* `ipsj-tokai-slides-20121026.html`をダウンロードして，HTML5対応のブラウザ（Chromeを推奨）で開いてください．
+* Download `ipsj-tokai-slides-20121026.html` and open the file with an HTML5-compatible browser, preferably Chrome. 
+* This presentation is prepared with [landslide](https://github.com/adamzap/landslide) and the [avalanche](https://github.com/akrabat/avalanche) theme.
+
+---
+
 # Talk on Erlang/OTP and Information Security
 
 * At Nagoya University, 29-OCT-2012
