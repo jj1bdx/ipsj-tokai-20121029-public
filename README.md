@@ -3,7 +3,7 @@
 * At Nagoya University, 29-OCT-2012
 * Sponsored by IPSJ Tokai Branch
 * Supported by Graduate School of Information Science, Nagoya University
-* Slides in Japanese
+* Slides written and talk spoken in Japanese
 * Special thanks to: Prof. Naoki Nishida
 
 ---
