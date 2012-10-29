@@ -1,0 +1,779 @@
+<style media="print" type="text/css">
+body {
+	font-size: 90%;
+}
+img {
+	width:320px;
+	height:auto;
+}
+</style>
+<p><style media="print" type="text/css">
+body {
+    font-size: 90%;
+}
+img {
+    width:320px;
+    height:auto;
+}
+</style></p>
+<h1>Erlang/OTP並行処理システムと情報セキュリティの未来<br>2012年10月29日<br>力武 健次</h1>
+
+<hr />
+
+<h2>自己紹介と人生歴</h2>
+
+<ul>
+<li>1974年（9才）からコンピュータ触ってます</li>
+<li>1986年からネットにはまってます</li>
+<li>システム管理とプログラミングが仕事です</li>
+<li>最近は情報セキュリティの社会的，政治的，人的問題への対応で苦労してます</li>
+<li>関数型言語の専門家ではありません</li>
+</ul>
+
+<hr />
+
+<h2>プログラミング言語歴(1)</h2>
+
+<ul>
+<li>1970年代にFORTRANを触りました</li>
+<li>1980年代にC言語を覚えました</li>
+<li>1989年にPrologの単位を落としました</li>
+<li>2008年ぐらいまで関数型言語には劣等感がありました（今でもあります）</li>
+</ul>
+
+<hr />
+
+<h2>プログラミング言語歴(2)</h2>
+
+<ul>
+<li>1980年代前半にLISPの本を初めて読みました，が，当時はS式はわかりませんでした</li>
+<li>1980年代後半にUtiLispの発祥の地（和田英一先生の研究室）に在籍していましたが，劣等生でした（ネットで遊んでばかりいました）</li>
+<li>C++やJavaはよくわかっていません</li>
+<li>Erlangは初めて真剣に向き合った関数型言語です</li>
+</ul>
+
+<hr />
+
+<h2>1980年代の関数型言語の印象</h2>
+
+<ul>
+<li>遅い，重い（インタプリタ）</li>
+<li>メモリを食いすぎる</li>
+<li>速く書けない（手抜きができない）</li>
+<li>CPUは今より約2000倍遅かった</li>
+<li>VAX8600 (1984): 4.1 VAX MIPS, 256MB</li>
+<li>i5-2410M (2011): ~8600 VAX MIPS, 4GB</li>
+</ul>
+
+<hr />
+
+<h2>サボったツケを払っています</h2>
+
+<ul>
+<li>1980年代にLISPやGHC（ホーン節の方），Mirandaの本を買った覚えがありますが，理解できず手放しました</li>
+<li>1989年に単位を落として以来Prologは好きではありません</li>
+<li>…しかし約20年後の2008年になって，Prologに似たパターンマッチ文法（意味は違いますが）のErlangを勉強する羽目になりました</li>
+<li>20年分の勉強をやり直しています</li>
+</ul>
+
+<hr />
+
+<h2>（私見）この20年間未解決の課題</h2>
+
+<ul>
+<li>分散システムの基礎理論</li>
+<li>TCP/IP （未だにIPv4中心）</li>
+<li>逐次プログラミングからの脱却</li>
+<li>信頼性の高いシステム構築</li>
+<li>情報セキュリティとプログラミングの関係</li>
+<li>電子メールからの脱却</li>
+</ul>
+
+<hr />
+
+<h2>20年間興味の持てなかったこと</h2>
+
+<ul>
+<li>(C++, Java的)オブジェクト指向</li>
+<li>厳格な階層的クラス構造</li>
+<li>細かいWebページの作り方</li>
+<li>Windowsでのコーディング</li>
+<li>「Web広告ビジネス」</li>
+</ul>
+
+<hr />
+
+<h2>ではなぜErlangを?</h2>
+
+<ul>
+<li>2007年にDNSサーバBINDの一部改造の結果に関する論文を書いていたが，あまりにもソースの行数が多くて泣きそうだった</li>
+<li>何か他の言語をやらないと時代に取り残される気がした</li>
+<li>2008年春にたまたま東京出張の時にErlangの本を立ち読みした</li>
+<li>それ以来ハマっている</li>
+</ul>
+
+<hr />
+
+<h2>私のハマった本</h2>
+
+<ul>
+<li>Joe Armstrong "Programming Erlang"</li>
+<li>日本語版はオーム社「プログラミングErlang」</li>
+</ul>
+
+<p><img src="prog-erlang-usjp.jpg" alt="prog-erlang" /></p>
+
+<hr />
+
+<h1>Erlangの簡単な歴史</h1>
+
+<hr />
+
+<h2>Erlang開発の背景</h2>
+
+<ul>
+<li>Ericsson Computer Science Lab (CSLab)</li>
+<li>1985年から電話交換機用として開発が始まる</li>
+<li>専用→汎用ハードウェアへの移行</li>
+<li>過去からの知見: ポインタの利用を避ける</li>
+<li>呼とプロセスの対応: ユーザランドでの管理</li>
+</ul>
+
+<hr />
+
+<h2>Erlangを書いた主な人達</h2>
+
+<ul>
+<li>Bjarne D&auml;cker: CSLabのリーダー</li>
+<li>Joe Armstrong: 基本言語仕様の設計と実装</li>
+<li>Mike Williams: Cによる仮想マシンの実装</li>
+<li>Robert Virding: ライブラリの実装</li>
+<li>Claes Wikstr&ouml;m: 分散環境の実装</li>
+<li>そして現在: Ericsson OTP Team</li>
+</ul>
+
+<hr />
+
+<h2>Erlang（アーラン）の由来</h2>
+
+<ul>
+<li>Agner Krarup Erlang (1878-1929)</li>
+<li>デンマークの数学者</li>
+<li>電話交換の呼制御で待ち行列理論を確立</li>
+<li>…実際の発音は「エアラング」に近い</li>
+<li>実は ERicsson LANGuage だからという話も</li>
+</ul>
+
+<hr />
+
+<h2>交換機システムの要件(1)</h2>
+
+<ul>
+<li>非常に大量の並行動作を制御する</li>
+<li>一定時刻または一定時間以内での動作</li>
+<li>複数計算機での分散動作</li>
+<li>ハードウェアとの確実なやり取り</li>
+<li>超大規模ソフトウェアシステム</li>
+</ul>
+
+<hr />
+
+<h2>交換機システムの要件(2)</h2>
+
+<ul>
+<li>競合する特徴をまとめる複雑な機能性</li>
+<li>数年間は無停止で動き続ける</li>
+<li>無停止での設定変更やソフトウェア交換</li>
+<li>非常に厳しい品質と信頼性に対する要求</li>
+<li>ハード/ソフト双方への耐故障性</li>
+</ul>
+
+<hr />
+
+<h2>交換機システムとWebシステム</h2>
+
+<ul>
+<li>要件が良く似ている</li>
+<li>HTTP(S)はTCP（コネクション）ベース</li>
+<li>HTTP(S): data plane</li>
+<li>DNSはUDP（コネクションレス）ベース</li>
+<li>DNS: control planeの一部</li>
+</ul>
+
+<hr />
+
+<h2>Erlang開発の成果(1)</h2>
+
+<ul>
+<li>1995年に新製品への投入が決定</li>
+<li>1998年にAXD301 GPRS交換機に実装</li>
+<li>同年Ericsson内部でErlang使用禁止令</li>
+<li>同年オープンソース化される</li>
+<li>開発メンバーが独立 (Bluetail AB)</li>
+</ul>
+
+<hr />
+
+<h2>Erlang開発の成果(2)</h2>
+
+<ul>
+<li>Bluetail ABはNortelに買収されるが，2000年のITブーム終息後Nortelは人員削減を行い，メンバーの一部は再度独立</li>
+<li>Erlangを使ったベンチャー企業ができる (Kreditor, Klarna, Process-One, Trifork, etc.) </li>
+<li>CSLabは2002年に閉鎖，保守はOTP Teamへ移行</li>
+<li>運用支援や教育を行う Erlang Consulting (現 Erlang Solutions) も1999年に設立，サポートも充実</li>
+</ul>
+
+<hr />
+
+<h2>Erlang開発の成果(3)</h2>
+
+<ul>
+<li>2006年にSMPマルチコア環境に対応</li>
+<li>2009年11月: Erlang/OTP，オープンソース版開発をGitHubベースに移行</li>
+<li>大規模耐障害性ストレージへの応用が始まる</li>
+<li>2010年7月: Gemini Mobile (現Cloudian), Hibari 1.0リリース</li>
+<li>2011年9月: Basho Technologies, Riak 1.0 リリース</li>
+<li>現在多くの大規模Webサービスで使われている</li>
+</ul>
+
+<hr />
+
+<h2>Erlangの定番アプリ</h2>
+
+<ul>
+<li>サーバサイドが得意</li>
+<li>HTTP(S): MochiWeb, Yaws</li>
+<li>XMPP: ejabberd</li>
+<li>負荷試験ツール: Tsung</li>
+<li>NoSQL: CouchDB, Riak</li>
+<li>Property test: QuickCheck</li>
+</ul>
+
+<hr />
+
+<h1>Erlangの特徴</h1>
+
+<hr />
+
+<h2>Erlangの実装方式</h2>
+
+<ul>
+<li>BEAM: 仮想マシン(VM)</li>
+<li>粒度の細かいガベージコレクタ(GC)</li>
+<li>Cによる拡張ライブラリ (Native Interface Functions (NIFs))</li>
+<li>BEAM間通信による分散処理</li>
+<li>JVMの実装もある(Erjang)</li>
+</ul>
+
+<hr />
+
+<h2>ErlangとユーザランドVM</h2>
+
+<p><img src="boogieboard/erlang-runtime.jpg" alt="erlang-runtime" /></p>
+
+<hr />
+
+<h2>基本はシンプルな関数型言語</h2>
+
+<pre><code>!erlang
+%%% 階乗の計算
+-module(factorial). % モジュール名
+-export([f/1]).     % 外部に見せる関数
+
+% factorial:f/1
+f(N) when is_integer(N), N &gt; 0 -&gt; f(N, 1).
+
+% factorial:f/2 内部用 末尾再帰の関数
+% 関数は1つ以上のパターンマッチから成る
+f(1, F) -&gt; F;
+f(N, F) -&gt; f(N - 1, N * F).
+</code></pre>
+
+<hr />
+
+<h2>Erlangの主な構成要素</h2>
+
+<pre><code>!erlang
+A = atom, Int = 123, Float = 1.0,
+Tuple = {A, 1.0, test}, % 有限個
+List = [A, Int, Float], % 可変長
+List =:= [A | [Int, Float] ]. % head/tail演算
+module:func(Arg1, Arg2). % 関数呼び出し
+fun module:func/2. % (2はarity)
+Fun = fun(X) -&gt; X * 2. % (funは無名関数)
+A = &lt;&lt;10, 20, 30&gt;&gt;. % 3バイトのバイナリ
+&lt;&lt;X:12, Y:8, Z:4&gt;&gt; = A. % ビット操作も可能
+[X,Y,Z] =:= [161, 65, 14].
+%%% リスト内包表記: map関数と同義
+[2*P || P &lt;- [X,Y,Z]] =:= [322,130,28].
+</code></pre>
+
+<hr />
+
+<h2>変数と単一代入原則</h2>
+
+<ul>
+<li>変数は大文字または<code>_</code>（アンダースコア）で始まる</li>
+<li>変数のスコープは関数内のみ</li>
+<li>代入とはコピーを作ること</li>
+<li>変数の代入は関数内で1回だけ</li>
+<li><code>A = A + 1</code> は間違い</li>
+<li><code>A2 = A + 1</code> として新しい変数に代入するのがErlangでの正しいやり方</li>
+</ul>
+
+<hr />
+
+<h2>Erlangに存在しないもの</h2>
+
+<ul>
+<li>ポインタ（GCでメモリ管理）</li>
+<li>Java的なオブジェクト指向</li>
+<li>Java的な階層的名前構造</li>
+<li>型推論（Dialyzerで実現）</li>
+<li>ループ（すべて末尾再帰）</li>
+<li>Cの<code>static</code>変数</li>
+</ul>
+
+<hr />
+
+<h2>軽量プロセス=再起動が容易</h2>
+
+<ul>
+<li>従来: プロセスを落とさないプログラミング（例外処理，エラー捕捉）</li>
+<li>Erlang: 「落ちたら再起動」 (Let it fail原則)</li>
+<li>プロセス起動: <code>Pid = spawn(Function)</code></li>
+<li>エラーシグナルの伝達: <code>link(Pid)</code></li>
+<li>Linkによりプロセス終了原因の把握が可能</li>
+</ul>
+
+<hr />
+
+<h2>Linkによる例外捕捉</h2>
+
+<p><img src="boogieboard/trapexit.jpg" alt="trapexit" /></p>
+
+<hr />
+
+<h2>スーパーバイザツリー</h2>
+
+<p><img src="boogieboard/supervision.jpg" alt="supervision" /></p>
+
+<hr />
+
+<h2>プロセス間メッセージ</h2>
+
+<pre><code>!erlang
+%%% Pid: プロセスID (BEAM内一意)
+%%% メッセージの送信
+Pid ! {self(), {request, Request}}.
+%%% メッセージの受信: receive文
+%%% 簡単なechoのループ
+loop() -&gt; 
+    receive
+        {From, {request, R}} -&gt;
+            From ! R,
+            loop();
+        {From, Other} -&gt;
+            From ! {error, Other},
+            loop()
+    end.
+</code></pre>
+
+<hr />
+
+<h2>Erlangの分散環境機能</h2>
+
+<ul>
+<li>TCP/UDP/SCTPソケットは直接使える</li>
+<li>BEAM間のRPC(TCPベース)が可能</li>
+<li>他ノードでのプロセス生成が可能</li>
+<li>ノード間でのメッセージ送受信が可能</li>
+<li>ノード間の関係は対等</li>
+</ul>
+
+<hr />
+
+<h2>ErlangとOTP</h2>
+
+<ul>
+<li>Open Telecom Platform</li>
+<li>Erlang/OTPとして標準配布</li>
+<li>ライブラリとデザインパターンの集まり</li>
+<li>分散データベース Mnesia</li>
+<li>SNMP, ASN.1, SSH, SSL, 一通りある</li>
+<li>Behaviour: サーバデザインのパターン集</li>
+</ul>
+
+<hr />
+
+<h2>Erlangの実現したもの(1)</h2>
+
+<ul>
+<li>並行ユーザランドプロセス</li>
+<li>スレッドより軽い超軽量プロセス</li>
+<li>「無共有」を前提としたプロセス定義</li>
+<li>純粋非同期メッセージパッシング</li>
+<li>言語の基本仕様は簡単な関数型言語 </li>
+</ul>
+
+<hr />
+
+<h2>Erlangの実現したもの(2)</h2>
+
+<ul>
+<li>データベース実装用の破壊的操作</li>
+<li>サービス中のコード更新</li>
+<li>大規模なライブラリ(OTP)</li>
+<li>並行プログラミングに適した機能</li>
+<li>（結果としての）並列処理対応</li>
+</ul>
+
+<hr />
+
+<h2>Erlang/OTP関連のコミュニティ</h2>
+
+<ul>
+<li><a href="http://www.erlang.org/">http://www.erlang.org/</a></li>
+<li>Erlang Factory (Lite)</li>
+<li>ACM SIGPLAN Erlang Workshop</li>
+<li>erlang-questions@erlang.org</li>
+<li>各地のErllounge</li>
+</ul>
+
+<hr />
+
+<h2>Erlang/OTPのこれからの課題</h2>
+
+<ul>
+<li>超大規模マルチコア環境への対応</li>
+<li><a href="http://www.release-project.eu">EU RELEASE Project</a></li>
+<li>ロックを減らして高速化: 無停止プログラム更新などの現在の機能を満たしつつ実現するのは大変困難だが進んでいる</li>
+<li>UTF-8への対応（文字列，変数名，atom名，etc.）</li>
+</ul>
+
+<hr />
+
+<h1>並行と並列の問題</h1>
+
+<hr />
+
+<h2>現在のプログラミング環境</h2>
+
+<ul>
+<li>そこそこ速い（VMでも）</li>
+<li>メモリはそこそこたくさん使える</li>
+<li>正確さ，保守性が重要視される</li>
+<li>関数型「的」言語の普及</li>
+<li>ササッと書ける開発環境の普及</li>
+</ul>
+
+<hr />
+
+<h2>現在の高速化の課題</h2>
+
+<ul>
+<li>個々のCPUは速くはもうならない</li>
+<li>逐次プログラミングではもう限界</li>
+<li>性能向上=マルチコア化は必須</li>
+<li>しかし，メモリもI/Oも遅い</li>
+<li>それに，通信はもっと遅い</li>
+<li>→並列処理指向へ</li>
+</ul>
+
+<hr />
+
+<h2>並列と並行の違い(1)</h2>
+
+<ul>
+<li>並列: parallel</li>
+<li>並列処理: 処理を複数の部分に分割し同時に処理して，統合した結果を得ること</li>
+<li>並行: concurrent</li>
+<li>並行処理: 複数の互いに影響し合う処理を，単独の仕組みの中で実行すること</li>
+</ul>
+
+<hr />
+
+<h2>並列と並行の違い(2)</h2>
+
+<ul>
+<li>並列処理: 事前に相互依存性を排除</li>
+<li>問題分割: ループの並列化など</li>
+<li>部分結果の統合は並列化が難しい</li>
+<li>代表的パターン: FFT, MapReduce</li>
+<li>パターンを見付けるのが大変</li>
+</ul>
+
+<hr />
+
+<h2>並列の例(1): MapReduce</h2>
+
+<p><img src="boogieboard/mapreduce.jpg" alt="MapReduce" /></p>
+
+<hr />
+
+<h2>並列の例(2): 一次変換</h2>
+
+<p><img src="boogieboard/matrix.jpg" alt="Matrix" /></p>
+
+<hr />
+
+<h2>並列と並行の違い(3)</h2>
+
+<ul>
+<li>並行処理: 一般的な現象</li>
+<li>OS，社会，宇宙，個人，電子回路</li>
+<li>処理単位が相互に情報交換</li>
+<li>情報交換には同期（待ち合わせ）が必要</li>
+<li>並行処理は1個のCPUでもできる</li>
+</ul>
+
+<hr />
+
+<h2>並行処理の世界</h2>
+
+<p><img src="boogieboard/concurrency.jpg" alt="Concurrency" /></p>
+
+<hr />
+
+<h2>プロセス間情報交換の方法(1)</h2>
+
+<ul>
+<li>従来のやり方: 共有メモリ</li>
+<li>ホワイトボードを皆で見るのと似ている</li>
+<li>書き込み/読み出しの同期の問題が発生</li>
+<li>同期制御には別の仕組み（ロック）が必要</li>
+<li>ロックは並列性を大きく損なう</li>
+</ul>
+
+<hr />
+
+<h2>共有メモリの問題</h2>
+
+<p><img src="boogieboard/shared-memory.jpg" alt="shared-memory" /></p>
+
+<hr />
+
+<h2>プロセス間情報交換の方法(2)</h2>
+
+<ul>
+<li>最近流行のやり方: メッセージパッシング</li>
+<li>「共有」せず個別に通信を行う</li>
+<li>同期は通信手順に含めることができる</li>
+<li>非同期（投げっぱなし）も可能</li>
+<li>ロックする期間を短くできる</li>
+</ul>
+
+<hr />
+
+<h2>メッセージパッシング</h2>
+
+<p><img src="boogieboard/message-passing.jpg" alt="message-passing" /></p>
+
+<hr />
+
+<h2>メッセージパッシングの課題</h2>
+
+<ul>
+<li>通信コスト（スループットと遅延）</li>
+<li>通信の局所性が性能に効いてくる</li>
+<li>SMP（全CPUを平等に扱う）では不十分</li>
+<li>SMPは<em>O(n^2)</em>なので超多コア環境には不向き</li>
+<li>Erlang固有の分散処理はSMPが前提</li>
+</ul>
+
+<hr />
+
+<h2>通信の局所性と遅延</h2>
+
+<p><img src="boogieboard/comm-latency.jpg" alt="comm-latency" /></p>
+
+<hr />
+
+<h2>Erlangと状態保持/共有</h2>
+
+<ul>
+<li>共有メモリを可能な限り排除</li>
+<li>共有はプロセスの中だけ（プロセス辞書）</li>
+<li>ループの状態は末尾再帰の引数で引き継ぐ</li>
+<li>プロセス間で共有する状態テーブルはライブラリで実装: ets, dets（ディスク使用）</li>
+<li>さらに高度化したのがMnesia</li>
+</ul>
+
+<hr />
+
+<h2>並行と並列は別の概念</h2>
+
+<ul>
+<li>並行は実用システムの前提</li>
+<li>並列は実装上の問題</li>
+<li>並行処理をどう並列化するか</li>
+<li>Erlangは並行処理に注力</li>
+<li>並列化で意味が変わらないシステムが必要</li>
+</ul>
+
+<hr />
+
+<h1>情報セキュリティとErlang</h1>
+
+<hr />
+
+<h2>技術を論じる前に</h2>
+
+<ul>
+<li>情報セキュリティは大部分が人間の問題</li>
+<li>どんな技術も人間のミスで無意味になる</li>
+<li>しかしだからといって技術は無視できない</li>
+<li>技術的努力で脆弱性を防げる(はず)</li>
+<li>技術的努力で事故の拡大を防げる(はず)</li>
+</ul>
+
+<hr />
+
+<h2>プログラミングとセキュリティ</h2>
+
+<ul>
+<li>信頼性は情報セキュリティの前提</li>
+<li>しかし間違いをゼロにはできない</li>
+<li>コード自身の予定外動作</li>
+<li>外部入力に対する誤動作</li>
+<li>複数プロセスの相互干渉</li>
+<li>なら問題の影響範囲を限定できないか?</li>
+</ul>
+
+<hr />
+
+<h2>パッチ当てで解決できない問題</h2>
+
+<ul>
+<li>パッチ当ては既知の脆弱性対策には有効</li>
+<li>見つからなければ放っておけるのか?</li>
+<li>しかし現実にはゼロデイアタックが頻発</li>
+<li>後から直したのでは追いつかない</li>
+<li>潰しても潰してもなくならない問題</li>
+</ul>
+
+<hr />
+
+<h2>本質的なプログラミングの問題</h2>
+
+<ul>
+<li>共有メモリ / メモリ管理</li>
+<li>形式的整合性チェック（型，範囲）</li>
+<li>予期しない共有=相互依存の防止</li>
+<li>完全にテストを行うことの難しさ</li>
+</ul>
+
+<hr />
+
+<h2>Erlangの制約とセキュリティ</h2>
+
+<ul>
+<li>一度使った記憶領域はいじらせない（データベースなど実装上の制約がある場合のみを例外とする）</li>
+<li>関数型プログラミングの手法による副作用の最小化，コードの定式化，モジュール化</li>
+<li>処理を小さなプロセスに分割し，異常動作時の停止と再起動を容易にする</li>
+<li>外部ツールで型解析，unit testing, property testingを可能とする</li>
+</ul>
+
+<hr />
+
+<h2>Erlangのテストツール</h2>
+
+<ul>
+<li>common_test: OTP標準</li>
+<li>Dialyzer: 動的型付けによる解析</li>
+<li>EUnit: 簡便なunit testing</li>
+<li>QuickCheck: property testing用，元々はHaskellで開発（QuviQが商用で販売）</li>
+<li><a href="http://proper.softlab.ntua.gr/">PropEr</a>: オープンソースのproperty test</li>
+</ul>
+
+<hr />
+
+<h2>Erlangとリファクタリング</h2>
+
+<ul>
+<li>リファクタリング=冗長なコードの削減によって信頼性の向上ができる</li>
+<li><a href="http://pnyf.inf.elte.hu/trac/refactorerl/wiki">RefactorErl</a></li>
+<li><a href="http://www.cs.kent.ac.uk/projects/wrangler/Home.html">Wrangler</a></li>
+<li><a href="http://tidier.softlab.ntua.gr/mediawiki/index.php/Main_Page">Tidier</a></li>
+</ul>
+
+<hr />
+
+<h2>Erlangのセキュリティ面での課題</h2>
+
+<ul>
+<li>BEAM間通信のアクセス制御と暗号化</li>
+<li>大規模なクライアント側プログラムへの応用（Webブラウザなど）（前例やライブラリがないわけではないが事例が少ない）</li>
+<li>マルチコア化に伴うコア単位のアクセス制御（現状でもaffinityなどの制御は可能）</li>
+<li>OTP各ライブラリの相互依存関係の明確化</li>
+<li>NIFに頼らない高速化</li>
+</ul>
+
+<hr />
+
+<h2>並行処理と暗号化</h2>
+
+<ul>
+<li>並行処理できる暗号技術の開発</li>
+<li>過去の状態に依存する=逐次処理が必要</li>
+<li>過去の状態に依存しない関数を使う</li>
+<li>カウンタベース疑似乱数 (ACM SC'11)</li>
+<li>カウンタモード(CTR)での暗号化</li>
+<li>安全性の検証が必要</li>
+</ul>
+
+<hr />
+
+<h1>まとめ: 結局Erlangでどんな未来?</h1>
+
+<hr />
+
+<h2>Erlangの並行的思考法</h2>
+
+<ul>
+<li>共有メモリの徹底排除</li>
+<li>軽量プロセス=軽量GC</li>
+<li>Location transparency</li>
+<li>メッセージパッシング</li>
+<li>Let it fail/crash 原則</li>
+</ul>
+
+<hr />
+
+<h2>並行的思考法とセキュリティ</h2>
+
+<ul>
+<li>信頼性から見たセキュリティ対策</li>
+<li>部分がコケても全体は止まらない</li>
+<li>危ないコーディングをさせない</li>
+<li>結果としてのセキュリティ向上</li>
+<li>イバラの道だがこちらが本筋では?</li>
+</ul>
+
+<hr />
+
+<h2>おわりに: 日本での並行プログラミング</h2>
+
+<ul>
+<li>第5世代コンピュータプロジェクト</li>
+<li>並行論理プログラミング</li>
+<li>Guarded Horn Clauses (GHC), KL1</li>
+<li>上田和紀，近山隆 （和田研OB）</li>
+<li>Erlangも同じ流れから派生している</li>
+<li>Erlangは論理型言語ではない</li>
+</ul>
+
+<hr />
+
+<h2>参考文献</h2>
+
+<ul>
+<li><a href="http://www.ueda.info.waseda.ac.jp/~ueda/readings/GHC-intro.pdf">上田和紀「並行論理プログラミング言語GHC/KL1」(2000年)(PDF)</a></li>
+<li><a href="http://dl.acm.org/citation.cfm?doid=1238844.1238850">Joe Armstrong "A History of Erlang"</a> (ACM HOPL III (2007), DOI: 10.1145/1238844.1238550)</li>
+<li><a href="http://www.erlang-factory.com/upload/presentations/662/StAndrews_complete.pdf">Kenneth Lundin, Rickard Green, Patrik Nyblom "Taking a Virtual Machine Towards Many-Core"</a> (St Andrews Erlang Factory Lite 2012)</li>
+<li>本橋信也，河野達也，鶴見利章「NOSQLの基礎知識」リックテレコム ISBN978-4-89797-887-1</li>
+</ul>
+
+<hr />
+
+<h1>Questions?</h1>
